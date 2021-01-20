@@ -7,7 +7,7 @@ require 'tempfile'
 
 storage = Google::Cloud::Storage.new(project_id: 'cs291a')
 bucket = storage.bucket 'cs291project2', skip_lookup: true
-correct_string_format = /^[0-9a-z]{2}\/[0-9a-z]{2}\/[0-9a-z]{60}$/
+correct_string_format = /^[0-9a-f]{2}\/[0-9a-f]{2}\/[0-9a-f]{60}$/
 
 
 get '/' do
@@ -93,6 +93,7 @@ delete '/files/:digest?' do
   filepath = filepath.downcase
   filepath.insert(4, "/")
   filepath.insert(2, "/")
+  puts "DELETE DIGEST match", filepath, filepath.match(correct_string_format)
   if not filepath.match(correct_string_format)
     return 422, ''
   end
