@@ -1,6 +1,7 @@
 require 'sinatra'
 require "google/cloud/storage"
 require 'digest'
+require 'json'
 
 
 storage = Google::Cloud::Storage.new(project_id: 'cs291a')
@@ -43,7 +44,10 @@ post '/files/' do
 
     filename = hash_contents.insert(4, "/")
     filename = filename.insert(2, "/")
-    bucket.create_file StringIO.new(params["file"]["tempfile"].read), filename
+  
+    
+    
+    bucket.create_file(params["file"]["tempfile"], filename,  content_type: params["file"]["type"] )
     
     return 201, {"uploaded": hash_contents}
   else 
@@ -67,8 +71,6 @@ get '/files/:digest?' do
 
   downloaded = file.download
   downloaded.rewind
-
-  puts downloaded.read
   return 200, {"Content-Type"   => file.content_type}, downloaded.read
 end
 
