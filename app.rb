@@ -9,20 +9,18 @@ bucket = storage.bucket 'cs291project2', skip_lookup: true
 correct_string_format = /^\w{2}\/\w{2}\/\w{60}$/
 
 get '/' do
-  redirect to('/files/')
+  redirect '/files/', 302
 end
 
 get '/files/' do 
   all_files = bucket.files
   filenames = []
   all_files.all do |file|
-    puts file.name, file.name.match(correct_string_format)
     if file.name and file.name.match(correct_string_format)
       f_name = file.name.gsub!(/[^0-9A-Za-z]/, '')
       filenames.append(f_name)
     end
   end
-  puts filenames
   filenames.to_json
 end
 
@@ -42,6 +40,7 @@ post '/files/' do
 
     end
 
+    response_body = {uploaded: hash_contents}
     filename = hash_contents.insert(4, "/")
     filename = filename.insert(2, "/")
   
@@ -49,7 +48,7 @@ post '/files/' do
     
     bucket.create_file(params["file"]["tempfile"], filename,  content_type: params["file"]["type"] )
     
-    return 201, {"uploaded": hash_contents}
+    return 201, JSON.generate(response_body)
   else 
     return 422, ''
   end
